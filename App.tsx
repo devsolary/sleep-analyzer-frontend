@@ -1,20 +1,33 @@
+import  { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Provider } from 'react-redux';
+import { store, useAppDispatch } from './src/store';
+import { fetchMe } from './src/store/slices/authSlice';
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { getToken } from './src/services/api';
 
-export default function App() {
+function AppInner() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // Attempt to restore session from stored token
+    getToken().then((token) => {
+      if (token) dispatch(fetchMe());
+    });
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style="light" />
+      <AppNavigator />
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AppInner />
+    </Provider>
+  );
+}
